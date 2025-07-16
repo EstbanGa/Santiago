@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load humanize static %}
+
+{% block title %}Listado de Registros{% endblock %}
+
+{% block content %}
+<style>
+    /* Los mismos estilos de antes, no es necesario cambiarlos */
+    :root {
+        --primary-color: #0d6efd; --success-color: #198754; --warning-color: #ffc107;
+        --danger-color: #dc3545; --info-color: #0dcaf0; --light-gray: #f8f9fa;
+        --dark-gray: #6c757d; --text-color: #212529; --border-color: #dee2e6;
+        --vencido-bg: #fbebeb;
+    }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .page-header h1 { font-size: 2.2rem; }
+    .btn-primary { background-color: var(--primary-color); color: white; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 5px; font-weight: 500; border: none; }
+    .search-container { width: 100%; margin-bottom: 2rem; padding: 1.5rem; background-color: var(--light-gray); border-radius: 8px; }
+    .search-form { display: flex; gap: 1rem; }
+    .search-form input[type="text"] { flex-grow: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 5px; }
+    .content-table { width: 100%; border-collapse: collapse; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+    .content-table thead tr { background-color: #e9ecef; text-align: left; }
+    .content-table th, .content-table td { padding: 1rem; vertical-align: middle; }
+    .content-table tbody tr { border-bottom: 1px solid var(--border-color); }
+    .content-table tbody tr:hover { background-color: #f1f3f5; }
+    tr.vencido { background-color: var(--vencido-bg) !important; font-weight: 500; }
+    tr.vencido td:first-child { border-left: 4px solid var(--danger-color); }
+    .status-badge { color: white; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+    .status-pendiente { background-color: var(--warning-color); color: var(--text-color); }
+    .status-pagado_parcial { background-color: var(--info-color); color: var(--text-color); }
+    .status-pagado_total { background-color: var(--success-color); }
+    .days-indicator { font-weight: 500; }
+    .days-danger { color: var(--danger-color); }
+    .days-warning { color: var(--warning-color); }
+    .days-ok { color: var(--success-color); }
+    .action-buttons a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 5px; font-size: 0.85rem; display: inline-block; margin-right: 0.5rem; }
+    .btn-view { background-color: var(--primary-color); }
+    .btn-delete { background-color: var(--danger-color); }
+</style>
+
+<div class="page-header">
+    <h1>Listado de Registros</h1>
+    <a href="{% url 'registros_crear' %}" class="btn-primary">Crear Registro</a>
+    <a href="{% url 'cargar_excel_completo' %}" class="btn-secondary">Importar Registro</a>
+</div>
+
+<div class="search-container">
+    <form method="get" action="{% url 'registros_list' %}" class="search-form">
+        <input type="text" name="q" placeholder="Buscar por ID de Registro, Cliente..." value="{{ request.GET.q }}">
+        <button type="submit" class="btn-primary" style="background-color: var(--dark-gray);">Buscar</button>
+    </form>
+</div>
+
+<table class="content-table">
+    <thead>
+        <tr>
+            <th>ID Registro</th>
+            <th>Cliente</th>
+            <th>Valor a Cobrar</th>
+            <th>Valor Pendiente</th>
+            <th>Estado</th>
+            <th>Días Vencimiento</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for registro in registros %}
+        <tr class="registro-row"
+            data-valor-cobrar="{{ registro.valor_cobrar_cliente }}"
+            data-fecha-limite="{{ registro.fecha_limite_cobro|date:'Y-m-d' }}"
+            data-estado-cobro="{{ registro.estado_cobro }}">
+            
+            {{ registro.pagos_cliente_data|json_script:registro.id }}
+
+            <td><strong>{{ registro.id }}</strong></td>
+            <td>{{ registro.cliente.nombre }}</td>
+            <td>${{ registro.valor_cobrar_cliente|floatformat:2|intcomma }}</td>
+            
+            <td class="cell-valor-pendiente">Calculando...</td>
+            <td><span class="status-badge status-{{ registro.estado_cobro }}">{{ registro.get_estado_cobro_display }}</span></td>
+            <td class="cell-dias-vencimiento">Calculando...</td>
+
+            <td class="action-buttons">
+                <a href="{% url 'flujo_caja' registro.id %}" class="btn-view">Flujo de Caja</a>
+                
+                <a href="#" class="btn-delete" onclick="return confirm('¿Eliminar?')">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem;">No hay registros.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Función para formatear dinero en formato colombiano
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(value);
+    };
+
+    // Obtenemos todas las filas que necesitan ser procesadas
+    const rows = document.querySelectorAll('.registro-row');
+
+    rows.forEach(row => {
+        // --- 1. LEER DATOS DEL HTML ---
+        const valorACobrar = parseFloat(row.dataset.valorCobrar);
+        const fechaLimiteStr = row.dataset.fechaLimite;
+        const estadoCobro = row.dataset.estadoCobro;
+        
+        // Leer el JSON de pagos desde la etiqueta <script>
+        const pagosDataElement = document.getElementById(row.querySelector('strong').textContent);
+        const pagos = JSON.parse(pagosDataElement.textContent);
+
+        // --- 2. CALCULAR VALOR PENDIENTE ---
+        let totalPagado = 0;
+        if (Array.isArray(pagos)) {
+            totalPagado = pagos.reduce((sum, pago) => sum + parseFloat(pago.monto || 0), 0);
+        }
+        const valorPendiente = valorACobrar - totalPagado;
+
+        // --- 3. CALCULAR DÍAS DE VENCIMIENTO ---
+        const cellDias = row.querySelector('.cell-dias-vencimiento');
+        if (fechaLimiteStr) {
+            const hoy = new Date();
+            // Reseteamos la hora para comparar solo fechas
+            hoy.setHours(0, 0, 0, 0);
+
+            // Creamos la fecha límite ajustando por la zona horaria para evitar errores de un día
+            const [year, month, day] = fechaLimiteStr.split('-').map(Number);
+            const fechaLimite = new Date(year, month - 1, day);
+
+            const diffTime = fechaLimite - hoy;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            let diasHtml = '';
+            if (estadoCobro === 'pagado_total') {
+                diasHtml = '<span>-</span>';
+            } else if (diffDays < 0) {
+                diasHtml = `<span class="days-indicator days-danger">Vencido hace ${Math.abs(diffDays)} día(s)</span>`;
+                row.classList.add('vencido');
+            } else if (diffDays === 0) {
+                diasHtml = `<span class="days-indicator days-warning">Vence Hoy</span>`;
+            } else {
+                diasHtml = `<span class="days-indicator days-ok">Vence en ${diffDays} día(s)</span>`;
+            }
+            cellDias.innerHTML = diasHtml;
+        } else {
+            cellDias.innerHTML = '<span>N/A</span>';
+        }
+
+        // --- 4. ACTUALIZAR LA CELDA DE VALOR PENDIENTE ---
+        const cellPendiente = row.querySelector('.cell-valor-pendiente');
+        cellPendiente.textContent = formatCurrency(valorPendiente);
+    });
+});
+</script>
+{% endblock %}

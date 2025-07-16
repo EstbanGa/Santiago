@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado de Maquinaria{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos generales */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    .page-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        color: #343a40;
+    }
+    .btn-primary {
+        background-color: #0d6efd;
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+    }
+
+    /* Estilos para la barra de búsqueda */
+    .search-container {
+        width: 100%;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .search-form {
+        display: flex;
+        gap: 1rem;
+    }
+    .search-form input[type="text"] {
+        flex-grow: 1;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+    .search-form button {
+        background-color: #6c757d;
+        cursor: pointer;
+    }
+    .search-form button:hover {
+        background-color: #5a6268;
+    }
+    
+    /* Estilos para los botones de acción en la tabla */
+    .action-buttons a {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: transform 0.2s;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+    .action-buttons a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .btn-details { background-color: #198754; }
+    .btn-compare { background-color: #0dcaf0; }
+
+    /* Estilos de la tabla */
+    .content-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .content-table thead tr {
+        background-color: #e9ecef;
+        color: #495057;
+        text-align: left;
+    }
+    .content-table th, .content-table td {
+        padding: 1rem;
+    }
+    .content-table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+    .content-table tbody tr:last-of-type {
+        border-bottom: none;
+    }
+    
+    /* Estilo para el UUID truncado */
+    .uuid-display {
+        font-family: monospace;
+        font-size: 0.9rem;
+        color: #6c757d;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    /* Tooltip para mostrar UUID completo */
+    .uuid-display:hover {
+        overflow: visible;
+        white-space: normal;
+        background-color: #f8f9fa;
+        padding: 0.25rem;
+        border-radius: 3px;
+    }
+</style>
+
+<div class="page-header">
+    <h1>Listado de Maquinaria</h1>
+    <a href="{% url 'crear_maquinaria' %}" class="btn-primary">Crear Máquina</a>
+</div>
+
+<div class="search-container">
+    <form method="get" action="{% url 'maquinaria' %}" class="search-form">
+        <input type="text" name="q" placeholder="Buscar por Nombre o Número de Serie..." value="{{ request.GET.q }}">
+        <button type="submit" class="btn-primary">Buscar</button>
+    </form>
+</div>
+
+<table class="content-table">
+    <thead>
+        <tr>
+            <th>ID de Máquina</th>
+            <th>Nombre</th>
+            <th>Número de Serie</th>
+            <th>Tipo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for maquina in maquinas %}
+        <tr>
+            <td>
+                <span class="uuid-display" title="{{ maquina.id }}">
+                    {{ maquina.id|truncatechars:8 }}...
+                </span>
+            </td>
+            <td>{{ maquina.nombre }}</td>
+            <td>{{ maquina.numero_serie|default:"N/A" }}</td>
+            <td>{{ maquina.get_tipo_display }}</td>
+            <td class="action-buttons">
+                {% if maquina.id %}
+                    <a href="{% url 'ver_detalle_maquina' maquina.id %}" class="btn-details">Ver Detalles</a>
+                    <a href="{% url 'comparar_maquina' maquina.id %}" class="btn-compare">Comparar</a>
+                {% else %}
+                    <span style="color: #dc3545;">ID no válido</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center; padding: 2rem;">
+                {% if request.GET.q %}
+                    No se encontraron máquinas con los criterios de búsqueda "{{ request.GET.q }}".
+                {% else %}
+                    No hay máquinas registradas.
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if maquinas %}
+<div style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+    Total de máquinas: {{ maquinas|length }}
+</div>
+{% endif %}
+
+{% endblock %}

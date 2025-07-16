@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Sistema de Tesorería{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+    
+    .main-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .main-subtitle {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        margin-bottom: 0;
+    }
+    
+    .cards-container {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .main-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        width: 280px;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .main-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .card-header {
+        padding: 2rem 1.5rem 1rem;
+        text-align: center;
+        background: linear-gradient(135deg, var(--card-color-1), var(--card-color-2));
+        color: white;
+        position: relative;
+    }
+    
+    .card-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .card-description {
+        color: #6c757d;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+    
+    .card-action {
+        color: var(--card-color-1);
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Colores específicos para cada card */
+    .clientes-card {
+        --card-color-1: #667eea;
+        --card-color-2: #764ba2;
+    }
+    
+    .proveedores-card {
+        --card-color-1: #f093fb;
+        --card-color-2: #f5576c;
+    }
+    
+    .registros-card {
+        --card-color-1: #4facfe;
+        --card-color-2: #00f2fe;
+    }
+    
+    .stats-mini {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .stat-mini {
+        text-align: center;
+        flex: 1;
+    }
+    
+    .stat-mini-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--card-color-1);
+    }
+    
+    .stat-mini-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    @media (max-width: 768px) {
+        .main-title {
+            font-size: 2rem;
+        }
+        
+        .cards-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .main-card {
+            width: 90%;
+            max-width: 350px;
+        }
+        
+        .main-container {
+            padding: 1rem;
+        }
+    }
+</style>
+<div class="main-container">
+    <div class="container">
+        <div class="header-section">
+            <h1 class="main-title">Sistema de Tesorería</h1>
+            <p class="main-subtitle">Gestión integral de flujo de caja</p>
+        </div>
+        
+        <div class="cards-container">
+            <!-- Card Clientes -->
+            <a href="{% url 'clientes_list' %}" class="main-card clientes-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="card-title">Clientes</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Gestiona tu base de clientes y términos de pago
+                    </p>
+                    <div class="card-action">
+                        <i class="fas fa-arrow-right"></i> Acceder
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Card Proveedores -->
+            <a href="{% url 'proveedores_list' %}" class="main-card proveedores-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3 class="card-title">Proveedores</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Administra proveedores y materia prima
+                    </p>
+
+                    <div class="card-action">
+                        <i class="fas fa-arrow-right"></i> Acceder
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Card Registros -->
+            <a href="{% url 'registros_list' %}" class="main-card registros-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3 class="card-title">Registros</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-description">
+                        Crea y gestiona transacciones de flujo de caja
+                    </p>
+ 
+                    <div class="card-action">
+                        <i class="fas fa-arrow-right"></i> Acceder
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Animación suave para las estadísticas
+    document.addEventListener('DOMContentLoaded', function() {
+        const statNumbers = document.querySelectorAll('.stat-mini-number');
+        
+        statNumbers.forEach(function(stat) {
+            const finalValue = parseInt(stat.textContent);
+            if (finalValue > 0) {
+                let currentValue = 0;
+                const increment = finalValue / 30;
+                
+                const counter = setInterval(function() {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        stat.textContent = finalValue;
+                        clearInterval(counter);
+                    } else {
+                        stat.textContent = Math.floor(currentValue);
+                    }
+                }, 40);
+            }
+        });
+    });
+</script>
+
+{% endblock %}

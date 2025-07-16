@@ -1,0 +1,587 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Nueva Máquina{% endblock %}
+
+{% block content %}
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    :root {
+        --primary-color: #2563eb;
+        --primary-hover: #1d4ed8;
+        --secondary-color: #64748b;
+        --success-color: #10b981;
+        --background-color: #f8fafc;
+        --card-background: #ffffff;
+        --border-color: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --radius: 0.75rem;
+        --radius-sm: 0.5rem;
+        
+        /* Colores específicos para cada categoría */
+        --color-cat1: #0d6efd;
+        --color-cat2: #fd7e14;
+        --color-cat3: #198754;
+        --color-cat4: #6c757d;
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .form-container {
+        background: var(--card-background);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .form-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .form-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .form-content {
+        padding: 2.5rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-section {
+        background: var(--background-color);
+        border-radius: var(--radius-sm);
+        padding: 1.5rem;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .form-section:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Colores específicos para cada categoría */
+    .form-section.cat1 {
+        border-left-color: var(--color-cat1);
+    }
+
+    .form-section.cat2 {
+        border-left-color: var(--color-cat2);
+    }
+
+    .form-section.cat3 {
+        border-left-color: var(--color-cat3);
+    }
+
+    .form-section.cat4 {
+        border-left-color: var(--color-cat4);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--primary-color);
+    }
+
+    .section-icon.cat1 { color: var(--color-cat1); }
+    .section-icon.cat2 { color: var(--color-cat2); }
+    .section-icon.cat3 { color: var(--color-cat3); }
+    .section-icon.cat4 { color: var(--color-cat4); }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        background-color: var(--card-background);
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+        background: var(--secondary-color);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #475569;
+        transform: translateY(-2px);
+    }
+
+    .info-banner {
+        background: linear-gradient(135deg, #dbeafe, #e0f2fe);
+        border-left: 4px solid var(--primary-color);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: var(--radius-sm);
+    }
+
+    .info-banner h3 {
+        margin: 0 0 0.5rem 0;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .info-banner p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-content {
+            padding: 1.5rem;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-container {
+        animation: fadeIn 0.5s ease;
+    }
+
+    /* Estados de validación */
+    .form-group input:invalid {
+        border-color: #ef4444;
+    }
+
+    .form-group input:valid {
+        border-color: var(--success-color);
+    }
+
+    /* Estilos específicos para campos numéricos */
+    .form-group input[type="number"] {
+        text-align: right;
+    }
+
+    /* Ajustes para el grid en pantallas más grandes */
+    @media (min-width: 1200px) {
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Gestión de Maquinaria</h1>
+        <div class="button-group">
+            <a href="{% url 'maquinaria' %}" class="btn btn-secondary">
+                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="info-banner">
+        <h3>Registro de Nueva Máquina</h3>
+        <p>Complete toda la información técnica y financiera necesaria para el análisis. Puede registrar una máquina <strong>Challenger</strong> (nueva máquina para reemplazar una existente) o <strong>Defender</strong> (máquina actual en la planta).</p>
+    </div>
+
+    <form method="POST" class="form-container">
+        {% csrf_token %}
+        
+        <div class="form-header">
+            <h2>Información de la Máquina</h2>
+            <p>Complete los datos técnicos, financieros y operativos de la máquina</p>
+        </div>
+
+        <div class="form-content">
+            <div class="form-grid">
+                <!-- Identificación y Estatus -->
+                <div class="form-section cat1">
+                    <h3 class="section-title">
+                        <svg class="section-icon cat1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        1. Identificación y Estatus
+                    </h3>
+                    
+                    <div class="form-group">
+                        {{ form.nombre.label_tag }}
+                        {{ form.nombre }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.tipo.label_tag }}
+                        {{ form.tipo }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.numero_serie.label_tag }}
+                        {{ form.numero_serie }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.criticality_ranking.label_tag }}
+                        {{ form.criticality_ranking }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.availability.label_tag }}
+                        {{ form.availability }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.date_in_service.label_tag }}
+                        {{ form.date_in_service }}
+                    </div>
+                </div>
+
+                <!-- Costos de Adquisición y Valor -->
+                <div class="form-section cat2">
+                    <h3 class="section-title">
+                        <svg class="section-icon cat2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                        2. Costos de Adquisición y Valor
+                    </h3>
+                    
+                    <div class="form-group">
+                        {{ form.purchase_price.label_tag }}
+                        {{ form.purchase_price }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.installation_and_training_cost.label_tag }}
+                        {{ form.installation_and_training_cost }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.setup_costs.label_tag }}
+                        {{ form.setup_costs }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.current_resale_value.label_tag }}
+                        {{ form.current_resale_value }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.salvage_value.label_tag }}
+                        {{ form.salvage_value }}
+                    </div>
+                </div>
+
+                <!-- Costos Operativos y Mantenimiento -->
+                <div class="form-section cat3">
+                    <h3 class="section-title">
+                        <svg class="section-icon cat3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        3. Costos Operativos y Mantenimiento
+                    </h3>
+                    
+                    <div class="form-group">
+                        {{ form.initial_monthly_maintenance_cost.label_tag }}
+                        {{ form.initial_monthly_maintenance_cost }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.maintenance_cost_gradient.label_tag }}
+                        {{ form.maintenance_cost_gradient }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.cost_of_downtime.label_tag }}
+                        {{ form.cost_of_downtime }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.operator_labor_cost.label_tag }}
+                        {{ form.operator_labor_cost }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.energy_consumption.label_tag }}
+                        {{ form.energy_consumption }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.energy_cost.label_tag }}
+                        {{ form.energy_cost }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.consumable_replacement_cost_1.label_tag }}
+                        {{ form.consumable_replacement_cost_1 }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.consumable_lifespan_1.label_tag }}
+                        {{ form.consumable_lifespan_1 }}
+                    </div>
+                </div>
+
+                <!-- Producción y Vida Útil -->
+                <div class="form-section cat4">
+                    <h3 class="section-title">
+                        <svg class="section-icon cat4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        4. Producción y Vida Útil
+                    </h3>
+                    
+                    <div class="form-group">
+                        {{ form.useful_life.label_tag }}
+                        {{ form.useful_life }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.end_of_useful_life_date.label_tag }}
+                        {{ form.end_of_useful_life_date }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.monthly_depreciation.label_tag }}
+                        {{ form.monthly_depreciation }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.production_rate.label_tag }}
+                        {{ form.production_rate }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.production_rate_units.label_tag }}
+                        {{ form.production_rate_units }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.texas_workdays.label_tag }}
+                        {{ form.texas_workdays }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.monthly_operating_hours.label_tag }}
+                        {{ form.monthly_operating_hours }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <a href="{% url 'maquinaria' %}" class="btn btn-secondary">
+                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Guardar Máquina
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Validación en tiempo real
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const inputs = form.querySelectorAll('input[required], select[required]');
+        
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.style.borderColor = '#ef4444';
+                } else {
+                    this.style.borderColor = '#10b981';
+                }
+            });
+        });
+
+        // Validación del formulario
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                if (input.value.trim() === '') {
+                    input.style.borderColor = '#ef4444';
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Por favor, complete todos los campos obligatorios.');
+            }
+        });
+
+        // Formatear campos numéricos
+        const numberInputs = form.querySelectorAll('input[type="number"]');
+        numberInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                // Aquí puedes agregar formateo de números si es necesario
+                if (this.value && !isNaN(this.value)) {
+                    this.style.borderColor = '#10b981';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

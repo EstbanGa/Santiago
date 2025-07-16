@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado de Proveedores{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos generales */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    .page-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        color: #343a40;
+    }
+    .btn-primary {
+        background-color: #0d6efd;
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+    }
+
+    /* Estilos para la barra de búsqueda */
+    .search-container {
+        width: 100%;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .search-form {
+        display: flex;
+        gap: 1rem;
+    }
+    .search-form input[type="text"] {
+        flex-grow: 1;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+    .search-form button {
+        background-color: #6c757d;
+        cursor: pointer;
+    }
+    .search-form button:hover {
+        background-color: #5a6268;
+    }
+    
+    /* Estilos para los botones de acción en la tabla */
+    .action-buttons a {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: transform 0.2s;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+    .action-buttons a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .btn-edit { background-color: #198754; }
+    .btn-delete { background-color: #dc3545; }
+
+    /* Estilos de la tabla */
+    .content-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .content-table thead tr {
+        background-color: #e9ecef;
+        color: #495057;
+        text-align: left;
+    }
+    .content-table th, .content-table td {
+        padding: 1rem;
+    }
+    .content-table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+    .content-table tbody tr:last-of-type {
+        border-bottom: none;
+    }
+    
+    /* Estilo para contacto */
+    .contact-info {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    /* Estilo para materia prima */
+    .material-badge {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    /* Estilo para términos */
+    .terms-badge {
+        background-color: #e9ecef;
+        color: #495057;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+</style>
+
+<div class="page-header">
+    <h1>Listado de Proveedores</h1>
+    <a href="{% url 'proveedores_crear' %}" class="btn-primary">Crear Proveedor</a>
+</div>
+
+<div class="search-container">
+    <form method="get" action="{% url 'proveedores_list' %}" class="search-form">
+        <input type="text" name="q" placeholder="Buscar por ID, Nombre o Tipo de Materia Prima..." value="{{ request.GET.q }}">
+        <button type="submit" class="btn-primary">Buscar</button>
+    </form>
+</div>
+
+<table class="content-table">
+    <thead>
+        <tr>
+            <th>ID Proveedor</th>
+            <th>Nombre</th>
+            <th>Contacto</th>
+            <th>Términos de Pago</th>
+            <th>Tipo Materia Prima</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for proveedor in proveedores %}
+        <tr>
+            <td><strong>{{ proveedor.id }}</strong></td>
+            <td>{{ proveedor.nombre }}</td>
+            <td>
+                <div>{{ proveedor.contacto }}</div>
+                {% if proveedor.email %}
+                    <div class="contact-info">{{ proveedor.email }}</div>
+                {% endif %}
+                {% if proveedor.telefono %}
+                    <div class="contact-info">{{ proveedor.telefono }}</div>
+                {% endif %}
+            </td>
+            <td>
+                <span class="terms-badge">{{ proveedor.terminos_pago }} días</span>
+            </td>
+            <td>
+                {% if proveedor.tipo_materia_prima %}
+                    <span class="material-badge">{{ proveedor.tipo_materia_prima }}</span>
+                {% else %}
+                    <span style="color: #6c757d; font-style: italic;">No especificado</span>
+                {% endif %}
+            </td>
+            <td class="action-buttons">
+                <a href="{% url 'proveedores_editar' proveedor.id %}" class="btn-edit">Editar</a>
+                <a href="{% url 'proveedores_eliminar' proveedor.id %}" class="btn-delete" 
+                   onclick="return confirm('¿Está seguro de desactivar este proveedor?')">Desactivar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem;">
+                {% if request.GET.q %}
+                    No se encontraron proveedores con los criterios de búsqueda "{{ request.GET.q }}".
+                {% else %}
+                    No hay proveedores registrados.
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if proveedores %}
+<div style="margin-top: 1rem; color: #6c757d; font-size: 0.9rem;">
+    Total de proveedores activos: {{ proveedores|length }}
+</div>
+{% endif %}
+
+{% endblock %}
