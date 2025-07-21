@@ -1,636 +1,610 @@
 {% extends 'base.html' %}
-{% load humanize static %}
 
-{% block title %}Editar Registro{% endblock %}
+{% block title %}Editar Registros{% endblock %}
 
 {% block content %}
-<style>
-    :root {
-        --primary-color: #4f46e5;
-        --success-color: #10b981;
-        --danger-color: #ef4444;
-        --warning-color: #f59e0b;
-        --gray-50: #f9fafb;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-300: #d1d5db;
-        --gray-600: #4b5563;
-        --gray-700: #374151;
-        --gray-800: #1f2937;
-        --border-radius: 12px;
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    }
-
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: var(--gray-700);
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
-
-    h1 {
-        color: white;
-        text-align: center;
-        margin-bottom: 2rem;
-        font-size: 2.5rem;
-        font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .section {
-        background: white;
-        padding: 2rem;
-        border-radius: var(--border-radius);
-        margin-bottom: 2rem;
-        box-shadow: var(--shadow-lg);
-        border: 1px solid var(--gray-200);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .section:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    }
-
-    h2 {
-        color: var(--gray-800);
-        margin-top: 0;
-        margin-bottom: 1.5rem;
-        font-size: 1.75rem;
-        font-weight: 600;
-        border-bottom: 3px solid var(--primary-color);
-        padding-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    h2::before {
-        content: "📋";
-        font-size: 1.5rem;
-    }
-
-    h3 {
-        color: var(--gray-700);
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-
-    label {
-        display: block;
-        margin-top: 1rem;
-        font-weight: 600;
-        color: var(--gray-700);
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    input, select, textarea {
-        width: 100%;
-        padding: 0.75rem;
-        margin-top: 0.5rem;
-        border: 2px solid var(--gray-200);
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        box-sizing: border-box;
-    }
-
-    input:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    input:disabled {
-        background-color: var(--gray-50);
-        color: var(--gray-600);
-        cursor: not-allowed;
-    }
-
-    .btn {
-        background: var(--primary-color);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-top: 1rem;
-        font-weight: 600;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn:hover {
-        background: #3730a3;
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .btn-success {
-        background: var(--success-color);
-    }
-
-    .btn-success:hover {
-        background: #059669;
-    }
-
-    .btn-danger {
-        background: var(--danger-color);
-    }
-
-    .btn-danger:hover {
-        background: #dc2626;
-    }
-
-    .btn-add {
-        background: var(--success-color);
-        margin-bottom: 1rem;
-    }
-
-    .btn-add:hover {
-        background: #059669;
-    }
-
-    .btn-add::before {
-        content: "➕";
-        font-size: 0.875rem;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: var(--shadow-sm);
-    }
-
-    th {
-        background: linear-gradient(135deg, var(--primary-color), #3730a3);
-        color: white;
-        padding: 1rem 0.75rem;
-        text-align: left;
-        font-weight: 600;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    td {
-        padding: 1rem 0.75rem;
-        border-bottom: 1px solid var(--gray-200);
-        vertical-align: middle;
-    }
-
-    tr:hover {
-        background-color: var(--gray-50);
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-    }
-
-    .info-item {
-        background: var(--gray-50);
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid var(--primary-color);
-    }
-
-    .info-item label {
-        margin-top: 0;
-        color: var(--gray-600);
-        font-size: 0.75rem;
-    }
-
-    .info-item input {
-        margin-top: 0.25rem;
-        background: transparent;
-        border: none;
-        padding: 0.5rem 0;
-        font-weight: 600;
-        color: var(--gray-800);
-    }
-
-    .no-data {
-        text-align: center;
-        color: var(--gray-600);
-        font-style: italic;
-        padding: 2rem;
-    }
-
-    .actions-container {
-        text-align: right;
-        margin-top: 2rem;
-        padding: 2rem;
-    }
-
-    .obligacion-item {
-        background: var(--gray-50);
-        border: 2px solid var(--gray-200);
-        border-radius: var(--border-radius);
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        position: relative;
-    }
-
-    .obligacion-item::before {
-        content: "📦";
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        font-size: 1.5rem;
-    }
-
-    .obligacion-item h3 {
-        margin-top: 0;
-        color: var(--primary-color);
-        font-weight: 700;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .status-pendiente {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-pagado {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .money {
-        font-weight: 700;
-        color: var(--success-color);
-    }
-
-    @media (max-width: 768px) {
-        .container {
-            padding: 1rem;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Registro - {{ registro.id }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
-
-        h1 {
-            font-size: 2rem;
+        .section-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
         }
-
-        .section {
-            padding: 1rem;
+        .btn-action {
+            margin: 2px;
         }
-
-        .form-grid {
-            grid-template-columns: 1fr;
+        .obligacion-row, .pago-row {
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
         }
-
-        .info-grid {
-            grid-template-columns: 1fr;
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
         }
-
-        table {
-            font-size: 0.875rem;
+        .floating-totals {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-width: 250px;
+            z-index: 1000;
         }
-
-        th, td {
-            padding: 0.5rem;
+        @media (max-width: 768px) {
+            .floating-totals {
+                position: static;
+                margin-bottom: 20px;
+            }
         }
-    }
-</style>
-
-<div class="container">
-    <h1>✏️ Editar Registro: {{ registro.id }}</h1>
-
-    <div class="section">
-        <h2>Información del Cliente</h2>
-        <div class="info-grid">
-            <div class="info-item">
-                <label>Cliente:</label>
-                <input type="text" value="{{ registro.cliente.nombre }}" disabled>
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <!-- Panel flotante de totales -->
+        <div class="floating-totals d-none d-lg-block">
+            <h6><i class="fas fa-calculator"></i> Totales</h6>
+            <div class="small">
+                <div><strong>Valor Cliente:</strong> $<span id="valor-cliente-display">{{ registro.valor_cobrar_cliente|floatformat:2 }}</span></div>
+                <div><strong>Total Obligaciones:</strong> $<span id="total-obligaciones">0.00</span></div>
+                <div><strong>Total Pagos Cliente:</strong> $<span id="total-pagos-cliente">0.00</span></div>
+                <div><strong>Total Pagos Proveedor:</strong> $<span id="total-pagos-proveedor">0.00</span></div>
+                <div class="mt-2 pt-2 border-top">
+                    <div><strong>Margen Bruto:</strong> $<span id="margen-bruto">0.00</span></div>
+                </div>
             </div>
-            <div class="info-item">
-                <label>Fecha Entrega:</label>
-                <input type="date" value="{{ registro.fecha_entrega_cliente }}" disabled>
-            </div>
-            <div class="info-item">
-                <label>Valor a Cobrar:</label>
-                <input type="text" value="${{ registro.valor_cobrar_cliente|floatformat:2|intcomma }}" disabled>
-            </div>
-            <div class="info-item">
-                <label>Estado de Cobro:</label>
-                <input type="text" value="{{ registro.get_estado_cobro_display }}" disabled>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-edit"></i> Editar Registro - {{ registro.id }}</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" id="registro-form">
+                            {% csrf_token %}
+                            
+                            <!-- Información Básica del Registro -->
+                            <div class="section-header">
+                                <h5><i class="fas fa-info-circle"></i> Información Básica</h5>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="{{ form.id.id_for_label }}" class="form-label">{{ form.id.label }}</label>
+                                    {{ form.id }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }}</label>
+                                    {{ form.cliente }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ form.fecha_entrega_cliente.id_for_label }}" class="form-label">{{ form.fecha_entrega_cliente.label }}</label>
+                                    {{ form.fecha_entrega_cliente }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ form.valor_cobrar_cliente.id_for_label }}" class="form-label">{{ form.valor_cobrar_cliente.label }}</label>
+                                    {{ form.valor_cobrar_cliente }}
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <label for="{{ form.fecha_limite_cobro.id_for_label }}" class="form-label">{{ form.fecha_limite_cobro.label }}</label>
+                                    {{ form.fecha_limite_cobro }}
+                                    <small class="form-text text-muted">Se calcula automáticamente</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="{{ form.estado_cobro.id_for_label }}" class="form-label">{{ form.estado_cobro.label }}</label>
+                                    {{ form.estado_cobro }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="{{ form.observaciones.id_for_label }}" class="form-label">{{ form.observaciones.label }}</label>
+                                    {{ form.observaciones }}
+                                </div>
+                            </div>
+
+                            <!-- Sección de Obligaciones -->
+                            <div class="section-header mt-4">
+                                <h5><i class="fas fa-file-invoice-dollar"></i> Obligaciones con Proveedores</h5>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-success" onclick="agregarObligacion()">
+                                    <i class="fas fa-plus"></i> Agregar Obligación
+                                </button>
+                            </div>
+                            
+                            <div id="obligaciones-container">
+                                <!-- Las obligaciones se cargarán aquí dinámicamente -->
+                            </div>
+
+                            <!-- Sección de Pagos del Cliente -->
+                            <div class="section-header mt-4">
+                                <h5><i class="fas fa-money-bill-wave"></i> Pagos del Cliente</h5>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-primary" onclick="agregarPagoCliente()">
+                                    <i class="fas fa-plus"></i> Agregar Pago Cliente
+                                </button>
+                            </div>
+                            
+                            <div id="pagos-cliente-container">
+                                <!-- Los pagos del cliente se cargarán aquí dinámicamente -->
+                            </div>
+
+                            <!-- Sección de Pagos a Proveedores -->
+                            <div class="section-header mt-4">
+                                <h5><i class="fas fa-hand-holding-usd"></i> Pagos a Proveedores</h5>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-warning" onclick="agregarPagoProveedor()">
+                                    <i class="fas fa-plus"></i> Agregar Pago Proveedor
+                                </button>
+                            </div>
+                            
+                            <div id="pagos-proveedor-container">
+                                <!-- Los pagos a proveedores se cargarán aquí dinámicamente -->
+                            </div>
+
+                            <!-- Campos ocultos para enviar datos JSON -->
+                            <input type="hidden" id="obligaciones_data" name="obligaciones_data" value="[]">
+                            <input type="hidden" id="pagos_cliente_data" name="pagos_cliente_data" value="[]">
+                            <input type="hidden" id="pagos_proveedor_data" name="pagos_proveedor_data" value="[]">
+
+                            <!-- Botones de acción -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <a href="{% url 'registros_list' %}" class="btn btn-secondary">
+                                                <i class="fas fa-arrow-left"></i> Volver a Lista
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <button type="submit" class="btn btn-success btn-lg">
+                                                <i class="fas fa-save"></i> Actualizar Registro
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="section">
-        <h2>Pagos del Cliente</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>📅 Fecha</th>
-                    <th>💰 Monto</th>
-                    <th>💳 Método</th>
-                    <th>📝 Referencia</th>
-                    <th>⚡ Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pago in pagos_cliente %}
-                <tr>
-                    <td>{{ pago.fecha_pago }}</td>
-                    <td class="money">${{ pago.monto|floatformat:0|intcomma }}</td>
-                    <td>{{ pago.metodo_pago|capfirst }}</td>
-                    <td>{{ pago.referencia }}</td>
-                    <td>
-                        <form method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="accion" value="eliminar_pago_cliente">
-                            <input type="hidden" name="pago_id" value="{{ pago.id }}">
-                            <button class="btn btn-danger" onclick="return confirm('¿Eliminar este pago?')">🗑️ Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="5" class="no-data">📝 Sin pagos registrados</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        const clientesData = {{ clientes_data|safe }};
+        const proveedoresData = {{ proveedores_data|safe }};
+        const registroData = {{ registro_data|safe }};
+        const metodosDepago = {{ metodos_pago|safe }};
+        const fechaHoy = '{{ fecha_hoy }}';
 
-        <h3>💸 Agregar Pago Cliente</h3>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="accion" value="agregar_pago_cliente">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>💰 Monto:</label>
-                    <input type="number" step="0.01" name="nuevo_monto_cliente" required>
-                </div>
-                <div class="form-group">
-                    <label>📅 Fecha:</label>
-                    <input type="date" name="nueva_fecha_cliente" required>
-                </div>
-                <div class="form-group">
-                    <label>💳 Método de Pago:</label>
-                    <select name="nuevo_metodo_cliente" required>
-                        <option value="">Seleccionar método</option>
-                        <option value="transferencia">🏦 Transferencia</option>
-                        <option value="efectivo">💵 Efectivo</option>
-                        <option value="cheque">📋 Cheque</option>
-                        <option value="tarjeta">💳 Tarjeta</option>
-                        <option value="otro">🔧 Otro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>📝 Referencia (opcional):</label>
-                    <input type="text" name="referencia_cliente">
-                </div>
-            </div>
-            <button class="btn" type="submit">💸 Agregar Pago Cliente</button>
-        </form>
-    </div>
+        let obligacionesArray = [];
+        let pagosClienteArray = [];
+        let pagosProveedorArray = [];
 
-    <div class="section">
-        <h2>Obligaciones con Proveedores</h2>
-        <div id="obligaciones-container"></div>
-        <button class="btn btn-add" id="add-obligacion-btn" type="button">Añadir Obligación</button>
-    </div>
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar datos existentes
+            obligacionesArray = registroData.obligaciones || [];
+            pagosClienteArray = registroData.pagos_cliente || [];
+            pagosProveedorArray = registroData.pagos_proveedor || [];
 
-    <div class="section">
-        <h2>Pagos a Proveedores</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>🏢 Proveedor</th>
-                    <th>💰 Monto</th>
-                    <th>📅 Fecha</th>
-                    <th>💳 Método</th>
-                    <th>📝 Referencia</th>
-                    <th>⚡ Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pago in pagos_proveedor %}
-                <tr>
-                    <td>
-                        {% for obl in obligaciones %}
-                            {% if obl.id == pago.obligacion_id %}{{ obl.proveedor_nombre }}{% endif %}
-                        {% endfor %}
-                    </td>
-                    <td class="money">${{ pago.monto|floatformat:0|intcomma }}</td>
-                    <td>{{ pago.fecha_pago }}</td>
-                    <td>{{ pago.metodo_pago|capfirst }}</td>
-                    <td>{{ pago.referencia }}</td>
-                    <td>
-                        <form method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="accion" value="eliminar_pago_proveedor">
-                            <input type="hidden" name="pago_id" value="{{ pago.id }}">
-                            <button class="btn btn-danger" onclick="return confirm('¿Eliminar este pago?')">🗑️ Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="6" class="no-data">📝 Sin pagos a proveedores</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            // Renderizar todos los elementos
+            renderizarObligaciones();
+            renderizarPagosCliente();
+            renderizarPagosProveedor();
+            actualizarTotales();
+            
+            // Configurar eventos
+            configurarEventos();
+        });
 
-        <h3>💸 Agregar Pago Proveedor</h3>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="accion" value="agregar_pago_proveedor">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>💰 Monto:</label>
-                    <input type="number" step="0.01" name="nuevo_monto_proveedor" required>
-                </div>
-                <div class="form-group">
-                    <label>📅 Fecha:</label>
-                    <input type="date" name="nueva_fecha_proveedor" required>
-                </div>
-                <div class="form-group">
-                    <label>💳 Método de Pago:</label>
-                    <select name="nuevo_metodo_proveedor" required>
-                        <option value="">Seleccionar método</option>
-                        <option value="transferencia">🏦 Transferencia</option>
-                        <option value="efectivo">💵 Efectivo</option>
-                        <option value="cheque">📋 Cheque</option>
-                        <option value="tarjeta">💳 Tarjeta</option>
-                        <option value="otro">🔧 Otro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>📦 Obligación:</label>
-                    <select name="obligacion_id" required>
-                        <option value="">Seleccionar obligación</option>
-                        {% for obligacion in obligaciones %}
-                            <option value="{{ obligacion.id }}">#{{ obligacion.id }} - {{ obligacion.proveedor_nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>📝 Referencia (opcional):</label>
-                    <input type="text" name="referencia_proveedor">
-                </div>
-            </div>
-            <button class="btn" type="submit">💸 Agregar Pago Proveedor</button>
-        </form>
-    </div>
-
-    <div class="actions-container">
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="accion" value="guardar_todo">
-            <button type="submit" class="btn btn-success">💾 Guardar Todo</button>
-        </form>
-    </div>
-</div>
-
-<script>
-const obligacionesIniciales = {{ obligaciones_data|safe }};
-const proveedoresData = {{ proveedores_data|safe }};
-const state = {
-    obligaciones: [],
-    pagosProveedor: {},
-};
-
-function getTempId() {
-    return 'ob' + Math.random().toString(36).substr(2, 9);
-}
-function actualizarProveedorNombre(selectElem, idx) {
-    const proveedorId = selectElem.value;
-    const proveedor = proveedoresData[proveedorId];
-    const hiddenInputName = `obligaciones[${idx}][proveedor_nombre]`;
-    const formGroup = selectElem.closest('.form-group').parentNode;
-
-    let input = formGroup.querySelector(`input[name="${hiddenInputName}"]`);
-    if (!input) {
-        input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = hiddenInputName;
-        formGroup.appendChild(input);
-    }
-    input.value = proveedor ? proveedor.nombre : '';
-}
-
-function renderObligaciones() {
-    const cont = document.getElementById('obligaciones-container');
-    cont.innerHTML = '';
-    state.obligaciones.forEach((obl, idx) => {
-        const div = document.createElement('div');
-        div.className = 'obligacion-item';
-        div.innerHTML = `
-            <h3>📦 Obligación #${idx + 1}</h3>
-            <input type="hidden" name="obligaciones[${idx}][id]" value="${obl.id}">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>🏢 Proveedor:</label>
-                    <select name="obligaciones[${idx}][proveedor_id]" required onchange="actualizarProveedorNombre(this, ${idx})">
-
-                        <option value="">Seleccionar proveedor</option>
-                        ${Object.entries(proveedoresData).map(([id, p]) =>
-                            `<option value="${id}" ${id == obl.proveedor_id ? 'selected' : ''}>${p.nombre}</option>`
-                        ).join('')}
-                    </select>
-                    <input type="hidden" name="obligaciones[${idx}][proveedor_nombre]" value="${obl.proveedor_nombre || ''}">
-
-                </div>
-                <div class="form-group">
-                    <label>💰 Valor a Pagar:</label>
-                    <input type="number" step="0.01" name="obligaciones[${idx}][valor_pagar]" value="${obl.valor_pagar}" required>
-                </div>
-                <div class="form-group">
-                    <label>📅 Fecha de Recepción:</label>
-                    <input type="date" name="obligaciones[${idx}][fecha_recepcion]" value="${obl.fecha_recepcion}">
-                </div>
-                <div class="form-group">
-                    <label>⏰ Fecha de Vencimiento:</label>
-                    <input type="date" name="obligaciones[${idx}][fecha_vencimiento]" value="${obl.fecha_vencimiento}">
-                </div>
-                <div class="form-group">
-                    <label>📝 Descripción:</label>
-                    <input type="text" name="obligaciones[${idx}][descripcion]" value="${obl.descripcion}">
-                </div>
-                <div class="form-group">
-                    <label>🔗 Referencia:</label>
-                    <input type="text" name="obligaciones[${idx}][referencia]" value="${obl.referencia}">
-                </div>
-            </div>
-        `;
-        cont.appendChild(div);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (Array.isArray(obligacionesIniciales)) {
-        obligacionesIniciales.forEach(ob => {
-            state.obligaciones.push({
-                id: getTempId(),
-                proveedor_id: ob.proveedor_id,
-                valor_pagar: ob.valor_pagar || '',
-                fecha_recepcion: ob.fecha_recepcion || '',
-                fecha_vencimiento: ob.fecha_vencimiento || '',
-                descripcion: ob.descripcion || '',
-                referencia: ob.referencia || '',
-                proveedor_nombre: ob.proveedor_nombre || ''
+        function configurarEventos() {
+            // Evento para cambio de cliente (recalcular fecha límite)
+            document.getElementById('id_cliente').addEventListener('change', function() {
+                calcularFechaLimiteCobro();
             });
-        });
-    }
 
-    renderObligaciones();
+            // Evento para cambio de fecha de entrega
+            document.getElementById('id_fecha_entrega_cliente').addEventListener('change', function() {
+                calcularFechaLimiteCobro();
+            });
 
-    document.getElementById('add-obligacion-btn').addEventListener('click', () => {
-        const newId = getTempId();
-        state.obligaciones.push({
-            id: newId,
-            proveedor_id: '',
-            valor_pagar: '',
-            fecha_recepcion: '',
-            fecha_vencimiento: '',
-            descripcion: '',
-            referencia: '',
+            // Evento para cambio de valor a cobrar
+            document.getElementById('id_valor_cobrar_cliente').addEventListener('input', function() {
+                actualizarTotales();
+            });
+        }
+
+        function calcularFechaLimiteCobro() {
+            const clienteId = document.getElementById('id_cliente').value;
+            const fechaEntrega = document.getElementById('id_fecha_entrega_cliente').value;
+            
+            if (clienteId && fechaEntrega && clientesData[clienteId]) {
+                const terminos = clientesData[clienteId].terminos;
+                const fecha = new Date(fechaEntrega);
+                fecha.setDate(fecha.getDate() + terminos);
+                
+                const fechaLimite = fecha.toISOString().split('T')[0];
+                document.getElementById('id_fecha_limite_cobro').value = fechaLimite;
+            }
+        }
+
+        // Funciones para Obligaciones
+        function agregarObligacion() {
+            const nuevaObligacion = {
+                id: Date.now(), // ID temporal único
+                proveedor_id: '',
+                proveedor_nombre: '',
+                valor_pagar: '',
+                fecha_recepcion: fechaHoy,
+                descripcion: '',
+                referencia: ''
+            };
+            
+            obligacionesArray.push(nuevaObligacion);
+            renderizarObligaciones();
+        }
+
+        function eliminarObligacion(index) {
+            obligacionesArray.splice(index, 1);
+            renderizarObligaciones();
+            actualizarTotales();
+        }
+
+        function renderizarObligaciones() {
+            const container = document.getElementById('obligaciones-container');
+            container.innerHTML = '';
+            
+            obligacionesArray.forEach((obligacion, index) => {
+                const obligacionHtml = `
+                    <div class="obligacion-row position-relative">
+                        <button type="button" class="btn btn-sm btn-danger remove-btn" onclick="eliminarObligacion(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Proveedor</label>
+                                <select class="form-select" onchange="actualizarProveedorObligacion(${index}, this)">
+                                    <option value="">Seleccionar proveedor...</option>
+                                    ${Object.keys(proveedoresData).map(id => `
+                                        <option value="${id}" ${obligacion.proveedor_id == id ? 'selected' : ''}>
+                                            ${proveedoresData[id].nombre}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Valor a Pagar</label>
+                                <input type="number" step="0.01" class="form-control" value="${obligacion.valor_pagar}" 
+                                       onchange="actualizarObligacion(${index}, 'valor_pagar', this.value)">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Fecha Recepción</label>
+                                <input type="date" class="form-control" value="${obligacion.fecha_recepcion}" 
+                                       onchange="actualizarObligacion(${index}, 'fecha_recepcion', this.value)">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Descripción</label>
+                                <input type="text" class="form-control" value="${obligacion.descripcion || ''}" 
+                                       onchange="actualizarObligacion(${index}, 'descripcion', this.value)">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Referencia</label>
+                                <input type="text" class="form-control" value="${obligacion.referencia || ''}" 
+                                       onchange="actualizarObligacion(${index}, 'referencia', this.value)">
+                            </div>
+                        </div>
+                        ${obligacion.fecha_vencimiento ? `
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt"></i> 
+                                    Fecha de vencimiento: ${obligacion.fecha_vencimiento}
+                                </small>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', obligacionHtml);
+            });
+            
+            actualizarCampoOculto('obligaciones_data', obligacionesArray);
+        }
+
+        function actualizarProveedorObligacion(index, select) {
+            const proveedorId = select.value;
+            if (proveedorId && proveedoresData[proveedorId]) {
+                obligacionesArray[index].proveedor_id = proveedorId;
+                obligacionesArray[index].proveedor_nombre = proveedoresData[proveedorId].nombre;
+                
+                // Calcular fecha de vencimiento si hay fecha de recepción
+                if (obligacionesArray[index].fecha_recepcion) {
+                    const fechaRecepcion = new Date(obligacionesArray[index].fecha_recepcion);
+                    fechaRecepcion.setDate(fechaRecepcion.getDate() + proveedoresData[proveedorId].terminos);
+                    obligacionesArray[index].fecha_vencimiento = fechaRecepcion.toISOString().split('T')[0];
+                }
+                
+                renderizarObligaciones();
+            }
+        }
+
+        function actualizarObligacion(index, campo, valor) {
+            obligacionesArray[index][campo] = valor;
+            
+            // Si se cambió la fecha de recepción, recalcular fecha de vencimiento
+            if (campo === 'fecha_recepcion' && obligacionesArray[index].proveedor_id) {
+                const proveedorId = obligacionesArray[index].proveedor_id;
+                if (proveedoresData[proveedorId] && valor) {
+                    const fechaRecepcion = new Date(valor);
+                    fechaRecepcion.setDate(fechaRecepcion.getDate() + proveedoresData[proveedorId].terminos);
+                    obligacionesArray[index].fecha_vencimiento = fechaRecepcion.toISOString().split('T')[0];
+                    renderizarObligaciones();
+                }
+            }
+            
+            if (campo === 'valor_pagar') {
+                actualizarTotales();
+            }
+            
+            actualizarCampoOculto('obligaciones_data', obligacionesArray);
+        }
+
+        // Funciones para Pagos del Cliente
+        function agregarPagoCliente() {
+            const nuevoPago = {
+                id: Date.now(),
+                monto: '',
+                fecha_pago: fechaHoy,
+                metodo_pago: 'transferencia',
+                referencia: '',
+                observaciones: ''
+            };
+            
+            pagosClienteArray.push(nuevoPago);
+            renderizarPagosCliente();
+        }
+
+        function eliminarPagoCliente(index) {
+            pagosClienteArray.splice(index, 1);
+            renderizarPagosCliente();
+            actualizarTotales();
+        }
+
+        function renderizarPagosCliente() {
+            const container = document.getElementById('pagos-cliente-container');
+            container.innerHTML = '';
+            
+            pagosClienteArray.forEach((pago, index) => {
+                const pagoHtml = `
+                    <div class="pago-row position-relative">
+                        <button type="button" class="btn btn-sm btn-danger remove-btn" onclick="eliminarPagoCliente(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Monto</label>
+                                <input type="number" step="0.01" class="form-control" value="${pago.monto}" 
+                                       onchange="actualizarPagoCliente(${index}, 'monto', this.value)">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Fecha Pago</label>
+                                <input type="date" class="form-control" value="${pago.fecha_pago}" 
+                                       onchange="actualizarPagoCliente(${index}, 'fecha_pago', this.value)">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Método</label>
+                                <select class="form-select" onchange="actualizarPagoCliente(${index}, 'metodo_pago', this.value)">
+                                    ${metodosDepago.map(([value, label]) => `
+                                        <option value="${value}" ${pago.metodo_pago === value ? 'selected' : ''}>
+                                            ${label}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Referencia</label>
+                                <input type="text" class="form-control" value="${pago.referencia || ''}" 
+                                       onchange="actualizarPagoCliente(${index}, 'referencia', this.value)">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Observaciones</label>
+                                <input type="text" class="form-control" value="${pago.observaciones || ''}" 
+                                       onchange="actualizarPagoCliente(${index}, 'observaciones', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', pagoHtml);
+            });
+            
+            actualizarCampoOculto('pagos_cliente_data', pagosClienteArray);
+        }
+
+        function actualizarPagoCliente(index, campo, valor) {
+            pagosClienteArray[index][campo] = valor;
+            
+            if (campo === 'monto') {
+                actualizarTotales();
+            }
+            
+            actualizarCampoOculto('pagos_cliente_data', pagosClienteArray);
+        }
+
+        // Funciones para Pagos a Proveedores
+        function agregarPagoProveedor() {
+            const nuevoPago = {
+                id: Date.now(),
+                monto: '',
+                fecha_pago: fechaHoy,
+                metodo_pago: 'transferencia',
+                referencia: '',
+                observaciones: ''
+            };
+            
+            pagosProveedorArray.push(nuevoPago);
+            renderizarPagosProveedor();
+        }
+
+        function eliminarPagoProveedor(index) {
+            pagosProveedorArray.splice(index, 1);
+            renderizarPagosProveedor();
+            actualizarTotales();
+        }
+
+        function renderizarPagosProveedor() {
+            const container = document.getElementById('pagos-proveedor-container');
+            container.innerHTML = '';
+            
+            pagosProveedorArray.forEach((pago, index) => {
+                const pagoHtml = `
+                    <div class="pago-row position-relative">
+                        <button type="button" class="btn btn-sm btn-danger remove-btn" onclick="eliminarPagoProveedor(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Monto</label>
+                                <input type="number" step="0.01" class="form-control" value="${pago.monto}" 
+                                       onchange="actualizarPagoProveedor(${index}, 'monto', this.value)">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Fecha Pago</label>
+                                <input type="date" class="form-control" value="${pago.fecha_pago}" 
+                                       onchange="actualizarPagoProveedor(${index}, 'fecha_pago', this.value)">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Método</label>
+                                <select class="form-select" onchange="actualizarPagoProveedor(${index}, 'metodo_pago', this.value)">
+                                    ${metodosDepago.map(([value, label]) => `
+                                        <option value="${value}" ${pago.metodo_pago === value ? 'selected' : ''}>
+                                            ${label}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Referencia</label>
+                                <input type="text" class="form-control" value="${pago.referencia || ''}" 
+                                       onchange="actualizarPagoProveedor(${index}, 'referencia', this.value)">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Observaciones</label>
+                                <input type="text" class="form-control" value="${pago.observaciones || ''}" 
+                                       onchange="actualizarPagoProveedor(${index}, 'observaciones', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', pagoHtml);
+            });
+            
+            actualizarCampoOculto('pagos_proveedor_data', pagosProveedorArray);
+        }
+
+        function actualizarPagoProveedor(index, campo, valor) {
+            pagosProveedorArray[index][campo] = valor;
+            
+            if (campo === 'monto') {
+                actualizarTotales();
+            }
+            
+            actualizarCampoOculto('pagos_proveedor_data', pagosProveedorArray);
+        }
+
+        // Funciones de utilidad
+        function actualizarCampoOculto(campoId, datos) {
+            document.getElementById(campoId).value = JSON.stringify(datos);
+        }
+
+        function actualizarTotales() {
+            const valorCliente = parseFloat(document.getElementById('id_valor_cobrar_cliente').value) || 0;
+            
+            // Calcular total obligaciones
+            const totalObligaciones = obligacionesArray.reduce((sum, obl) => {
+                return sum + (parseFloat(obl.valor_pagar) || 0);
+            }, 0);
+            
+            // Calcular total pagos cliente
+            const totalPagosCliente = pagosClienteArray.reduce((sum, pago) => {
+                return sum + (parseFloat(pago.monto) || 0);
+            }, 0);
+            
+            // Calcular total pagos proveedor
+            const totalPagosProveedor = pagosProveedorArray.reduce((sum, pago) => {
+                return sum + (parseFloat(pago.monto) || 0);
+            }, 0);
+            
+            // Calcular margen bruto: (Valor Cliente - Total Obligaciones)
+            const margenBruto = valorCliente - totalObligaciones;
+            
+            // Actualizar la interfaz
+            document.getElementById('valor-cliente-display').textContent = valorCliente.toFixed(2);
+            document.getElementById('total-obligaciones').textContent = totalObligaciones.toFixed(2);
+            document.getElementById('total-pagos-cliente').textContent = totalPagosCliente.toFixed(2);
+            document.getElementById('total-pagos-proveedor').textContent = totalPagosProveedor.toFixed(2);
+            document.getElementById('margen-bruto').textContent = margenBruto.toFixed(2);
+            
+            // Cambiar color del margen según si es positivo o negativo
+            const margenElement = document.getElementById('margen-bruto');
+            if (margenBruto >= 0) {
+                margenElement.style.color = 'green';
+            } else {
+                margenElement.style.color = 'red';
+            }
+        }
+
+        // Función para validar antes de enviar
+        document.getElementById('registro-form').addEventListener('submit', function(e) {
+            // Validar que el total de pagos del cliente no exceda el valor a cobrar
+            const valorCliente = parseFloat(document.getElementById('id_valor_cobrar_cliente').value) || 0;
+            const totalPagosCliente = pagosClienteArray.reduce((sum, pago) => {
+                return sum + (parseFloat(pago.monto) || 0);
+            }, 0);
+            
+            if (totalPagosCliente > valorCliente) {
+                e.preventDefault();
+                alert(`Los pagos del cliente ($${totalPagosCliente.toFixed(2)}) no pueden exceder el valor a cobrar ($${valorCliente.toFixed(2)})`);
+                return false;
+            }
+            
+            return true;
         });
-        renderObligaciones();
-    });
-});
-</script>
+    </script>
+</body>
 {% endblock %}

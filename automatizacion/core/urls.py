@@ -37,7 +37,7 @@ urlpatterns = [
     path('registros/', views.registros_list, name='registros_list'),
     path('registros/crear/', views.registros_crear, name='registros_crear'),
     # urls.py
-    path('registros/<str:id>/editar/', views.editar_registro, name='registros_editar'),
+    path('registros/<str:id>/editar/', views.registros_editar, name='registros_editar'),
 
     path('registros/validar-id/', views.validar_id_registro, name='validar_id_registro'),
     path('clientes/<int:cliente_id>/terminos/', views.obtener_terminos_cliente, name='obtener_terminos_cliente'),

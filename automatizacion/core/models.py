@@ -361,21 +361,6 @@ class Registro(models.Model):
     
     # ==================== MÉTODOS BÁSICOS DE CONSULTA ====================
     
-    def guardar_obligaciones(self, obligaciones_lista):
-        """Agrega múltiples obligaciones nuevas sin eliminar las existentes"""
-        for obl in obligaciones_lista:
-            self.generar_obligacion_con_fecha_vencimiento(
-                proveedor_id=int(obl['proveedor_id']),
-                proveedor_nombre=obl['proveedor_nombre'],
-                valor_pagar=obl['valor_pagar'],
-                fecha_recepcion=obl['fecha_recepcion'],
-                descripcion=obl.get('descripcion', ''),
-                referencia=obl.get('referencia', ''),
-            )
-
-
-
-    
     def obtener_obligaciones(self):
         """Retorna la lista de obligaciones"""
         return self.obligaciones_data or []

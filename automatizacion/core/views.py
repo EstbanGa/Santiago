@@ -404,7 +404,6 @@ def registros_list(request):
 
     return render(request, 'listar_registros.html', context)
 
-
 def registros_crear(request):
     """Vista para crear registro con gestión integral y cálculo automático de fechas."""
     
@@ -537,114 +536,161 @@ def registros_crear(request):
     # (Aquí también podrías repoblar el contexto para no perder datos)
     return redirect('registros_crear')
 
-def editar_registro(request, id):
-    registro = get_object_or_404(Registro, pk=id)
+def registros_editar(request, id):
+    """Vista para editar registro existente con gestión integral."""
+    
+    # Obtener el registro o devolver 404
+    registro = get_object_or_404(Registro, id=id)  # Changed registro_id to id
+    
+    # --- Lógica para la petición GET (Mostrar el formulario con datos existentes) ---
+    if request.method != 'POST':
+        form = RegistroForm(instance=registro)
+        
+        # Preparar datos para el frontend
+        clientes = Cliente.objects.filter(activo=True)
+        clientes_data = {
+            str(c.id): {
+                'nombre': c.nombre,
+                'terminos': c.terminos_contractuales
+            } for c in clientes
+        }
 
-    # Estas deben estar disponibles SIEMPRE
-    obligaciones = registro.obligaciones_data if registro.obligaciones_data else []
+        proveedores = Proveedor.objects.filter(activo=True)
+        proveedores_data = {
+            str(p.id): {
+                'nombre': p.nombre,
+                'terminos': p.terminos_pago
+            } for p in proveedores
+        }
 
-    proveedores = Proveedor.objects.filter(activo=True)
-    proveedores_data = {
-        str(p.id): {
-            'nombre': p.nombre,
-            'terminos': p.terminos_pago
-        } for p in proveedores
-    }
+        # Preparar datos existentes del registro para el frontend
+        registro_data = {
+            'obligaciones': registro.obtener_obligaciones(),
+            'pagos_cliente': registro.obtener_pagos_cliente(),
+            'pagos_proveedor': registro.obtener_pagos_proveedor(),
+        }
 
-    if request.method == 'POST':
-        accion = request.POST.get('accion')
+        context = {
+            'form': form,
+            'registro': registro,
+            'fecha_hoy': date.today().isoformat(),
+            'metodos_pago': Registro.METODO_PAGO_CHOICES,
+            'clientes_data': json.dumps(clientes_data),
+            'proveedores_data': json.dumps(proveedores_data),
+            'registro_data': json.dumps(registro_data),
+            'es_edicion': True,
+        }
+        return render(request, 'editar_registro.html', context)
 
-        if accion == 'agregar_pago_cliente':
-            monto = request.POST.get('nuevo_monto_cliente')
-            fecha = request.POST.get('nueva_fecha_cliente')
-            metodo = request.POST.get('nuevo_metodo_cliente')
-            referencia = request.POST.get('referencia_cliente')
+    # --- Lógica para la petición POST (Actualizar el formulario) ---
+    form = RegistroForm(request.POST, instance=registro)
+    
+    obligaciones_data = request.POST.get('obligaciones_data', '[]')
+    pagos_cliente_data = request.POST.get('pagos_cliente_data', '[]')
+    pagos_proveedor_data = request.POST.get('pagos_proveedor_data', '[]')
+    
+    try:
+        obligaciones = json.loads(obligaciones_data)
+        pagos_cliente = json.loads(pagos_cliente_data)
+        pagos_proveedor = json.loads(pagos_proveedor_data)
+    except json.JSONDecodeError:
+        messages.error(request, 'Error en el formato de datos JSON.')
+        return redirect('registros_editar', id=id)  # Changed registro_id to id
 
-            if monto and fecha:
-                registro.agregar_pago_cliente(
-                    monto=Decimal(monto),
-                    fecha_pago=parse_date(fecha),
-                    metodo_pago=metodo or 'transferencia',
-                    referencia=referencia or ''
-                )
-                registro.actualizar_estado_cobro()
-            return redirect('registros_editar', id=registro.pk)
+    if form.is_valid():
+        try:
+            with transaction.atomic():
+                # Guardar los cambios básicos del formulario
+                registro_actualizado = form.save(commit=False)
+                
+                # Procesar obligaciones
+                proveedores_cache = {str(p.id): p for p in Proveedor.objects.filter(
+                    id__in=[obl.get('proveedor_id') for obl in obligaciones if obl.get('proveedor_id')]
+                )}
 
-        elif accion == 'agregar_pago_proveedor':
-            monto = request.POST.get('nuevo_monto_proveedor')
-            fecha = request.POST.get('nueva_fecha_proveedor')
-            metodo = request.POST.get('nuevo_metodo_proveedor')
-            referencia = request.POST.get('referencia_proveedor')
-            obligacion_id = request.POST.get('obligacion_id')
+                obligaciones_procesadas = []
+                for i, obligacion in enumerate(obligaciones):
+                    proveedor_id = obligacion.get('proveedor_id')
+                    fecha_recepcion_str = obligacion.get('fecha_recepcion')
 
-            if monto and fecha and obligacion_id:
-                registro.agregar_pago_proveedor(
-                    obligacion_id=int(obligacion_id),
-                    monto=Decimal(monto),
-                    fecha_pago=parse_date(fecha),
-                    metodo_pago=metodo or 'transferencia',
-                    referencia=referencia or ''
-                )
-                registro.actualizar_estado_cobro()
-            return redirect('registros_editar', id=registro.pk)
+                    if not proveedor_id or not fecha_recepcion_str:
+                        raise ValidationError(f'La obligación #{i+1} debe tener proveedor y fecha de recepción.')
+                    
+                    proveedor = proveedores_cache.get(proveedor_id)
+                    if not proveedor:
+                        raise ValidationError(f'Proveedor con ID {proveedor_id} no encontrado.')
 
-        elif accion == 'eliminar_pago_cliente':
-            pago_id = request.POST.get('pago_id')
-            if pago_id:
-                registro.eliminar_pago_cliente(int(pago_id))
-                registro.actualizar_estado_cobro()
-            return redirect('registros_editar', id=registro.pk)
+                    # Calcular la fecha de vencimiento
+                    fecha_recepcion = datetime.strptime(fecha_recepcion_str, '%Y-%m-%d').date()
+                    fecha_vencimiento = fecha_recepcion + timedelta(days=proveedor.terminos_pago)
+                    
+                    obligacion_procesada = obligacion.copy()
+                    # Mantener ID existente o crear nuevo
+                    if 'id' not in obligacion_procesada or not obligacion_procesada['id']:
+                        obligacion_procesada['id'] = i + 1
+                    obligacion_procesada['fecha_vencimiento'] = fecha_vencimiento.isoformat()
+                    obligacion_procesada['proveedor_nombre'] = proveedor.nombre
+                    obligaciones_procesadas.append(obligacion_procesada)
 
-        elif accion == 'eliminar_pago_proveedor':
-            pago_id = request.POST.get('pago_id')
-            if pago_id:
-                registro.eliminar_pago_proveedor(int(pago_id))
-                registro.actualizar_estado_cobro()
-            return redirect('registros_editar', id=registro.pk)
+                # Validar pagos del cliente
+                total_pagos_cliente = Decimal('0.00')
+                for pago in pagos_cliente:
+                    if pago.get('monto'):
+                        total_pagos_cliente += Decimal(str(pago.get('monto', 0)))
+                
+                if total_pagos_cliente > registro_actualizado.valor_cobrar_cliente:
+                    raise ValidationError(f'Los pagos del cliente (${total_pagos_cliente:,.2f}) exceden el valor a cobrar (${registro_actualizado.valor_cobrar_cliente:,.2f}).')
 
-        elif accion == 'guardar_todo':
-            obligaciones_post = request.POST
-            nuevas_obligaciones = []
-
-            for key in obligaciones_post:
-                if key.startswith('obligaciones[') and key.endswith('][proveedor_id]'):
-                    idx = key.split('[')[1].split(']')[0]
-
-                    proveedor_id = obligaciones_post.get(f'obligaciones[{idx}][proveedor_id]')
-                    proveedor_nombre = obligaciones_post.get(f'obligaciones[{idx}][proveedor_nombre]')
-                    valor_pagar = obligaciones_post.get(f'obligaciones[{idx}][valor_pagar]')
-                    fecha_recepcion = obligaciones_post.get(f'obligaciones[{idx}][fecha_recepcion]')
-                    fecha_vencimiento = obligaciones_post.get(f'obligaciones[{idx}][fecha_vencimiento]')
-                    descripcion = obligaciones_post.get(f'obligaciones[{idx}][descripcion]')
-                    referencia = obligaciones_post.get(f'obligaciones[{idx}][referencia]')
-                    obligacion_id = obligaciones_post.get(f'obligaciones[{idx}][id]', '')
-
-                    if not obligacion_id or obligacion_id.startswith('ob'):
-                        nuevas_obligaciones.append({
-                            'proveedor_id': proveedor_id,
-                            'proveedor_nombre': proveedor_nombre,
-                            'valor_pagar': Decimal(valor_pagar) if valor_pagar else 0,
-                            'fecha_recepcion': parse_date(fecha_recepcion) if fecha_recepcion else None,
-                            'fecha_vencimiento': parse_date(fecha_vencimiento) if fecha_vencimiento else None,
-                            'descripcion': descripcion or '',
-                            'referencia': referencia or '',
-                        })
-
-            registro.guardar_obligaciones(nuevas_obligaciones)
-            registro.actualizar_estado_cobro()
-            print(nuevas_obligaciones)
-            return redirect('registros_list')
-
-    # Contexto común para GET o después de POST
-    context = {
-        'registro': registro,
-        'pagos_cliente': registro.obtener_pagos_cliente(),
-        'pagos_proveedor': registro.obtener_pagos_proveedor(),
-        'obligaciones': registro.obtener_obligaciones(),
-        'obligaciones_data': mark_safe(json.dumps(obligaciones)),
-        'proveedores_data': mark_safe(json.dumps(proveedores_data)),
-    }
-    return render(request, 'editar_registro.html', context)
+                # Procesar pagos manteniendo IDs existentes o creando nuevos
+                pagos_cliente_procesados = []
+                for i, pago in enumerate(pagos_cliente):
+                    if pago.get('monto'):
+                        pago_procesado = pago.copy()
+                        if 'id' not in pago_procesado or not pago_procesado['id']:
+                            # Generar nuevo ID basado en los existentes
+                            max_id = max([p.get('id', 0) for p in pagos_cliente_procesados], default=0)
+                            pago_procesado['id'] = max_id + 1
+                        pagos_cliente_procesados.append(pago_procesado)
+                
+                pagos_proveedor_procesados = []
+                for i, pago in enumerate(pagos_proveedor):
+                    if pago.get('monto'):
+                        pago_procesado = pago.copy()
+                        if 'id' not in pago_procesado or not pago_procesado['id']:
+                            max_id = max([p.get('id', 0) for p in pagos_proveedor_procesados], default=0)
+                            pago_procesado['id'] = max_id + 1
+                        pagos_proveedor_procesados.append(pago_procesado)
+                
+                # Actualizar datos del registro
+                registro_actualizado.obligaciones_data = obligaciones_procesadas
+                registro_actualizado.pagos_cliente_data = pagos_cliente_procesados
+                registro_actualizado.pagos_proveedor_data = pagos_proveedor_procesados
+                
+                # Guardar registro actualizado
+                registro_actualizado.save()
+                
+                # Actualizar estado de cobro automáticamente
+                registro_actualizado.actualizar_estado_cobro()
+                
+                # Actualizar días promedio de pago del cliente
+                if registro_actualizado.cliente:
+                    registro_actualizado.cliente.actualizar_dias_promedio_pago()
+                    
+                messages.success(request, f'Registro {registro_actualizado.id} actualizado exitosamente.')
+                return redirect('registros_list')
+                
+        except ValidationError as e:
+            messages.error(request, str(e))
+        except Exception as e:
+            messages.error(request, f'Error inesperado al actualizar: {str(e)}')
+    else:
+        # Si el formulario principal no es válido
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, f'Error en el campo "{form.fields[field].label}": {error}')
+    
+    # Si algo falla, volver a mostrar el formulario
+    return redirect('registros_editar', id=id)  # Changed registro_id to id
 
 
 # Vista auxiliar para validar ID de registro

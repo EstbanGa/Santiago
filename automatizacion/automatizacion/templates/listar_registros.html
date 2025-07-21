@@ -82,8 +82,11 @@
 
             <td class="action-buttons">
                 <a href="{% url 'flujo_caja' registro.id %}" class="btn-view">Flujo de Caja</a>
-                
-                <a href="#" class="btn-delete" onclick="return confirm('¿Eliminar?')">Eliminar</a>
+
+
+                <a href="{% url 'registros_editar' registro.id %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
             </td>
         </tr>
         {% empty %}
