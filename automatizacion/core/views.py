@@ -379,7 +379,6 @@ def proveedores_eliminar(request, pk):
 
 # ==================== VISTAS DE REGISTROS ====================
 
-
 def registros_list(request):
     """
     Vista minimalista para listar registros. Los cálculos se delegan a JavaScript.

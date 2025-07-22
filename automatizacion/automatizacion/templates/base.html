@@ -93,6 +93,7 @@
             <a href="{% url 'index' %}" {% if request.resolver_match.url_name == 'index' %}class="active"{% endif %}>Inicio</a>
             <a href="{% url 'maquinaria' %}" {% if request.resolver_match.url_name == 'maquinaria' %}class="active"{% endif %}>Maquinaria</a>
             <a href="{% url 'tesoreria' %}" {% if request.resolver_match.url_name == 'tesoreria' %}class="active"{% endif %}>Tesorería</a>
+            <a href="{% url 'cargar_excel_completo' %}" {% if request.resolver_match.url_name == 'Importar' %}class="active"{% endif %}>Importar</a>
         </div>
     </nav>
 

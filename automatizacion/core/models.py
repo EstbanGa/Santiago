@@ -69,7 +69,7 @@ class Cliente(models.Model):
         validators=[MinValueValidator(1)],
         verbose_name="Términos Contractuales (días)"
     )
-    average_days_to_pay = models.IntegerField(
+    average_days_to_pay = models.IntegerField(default=0,
         validators=[MinValueValidator(1)],
         verbose_name="Días Promedio de Pago Real"
     )
@@ -123,12 +123,7 @@ class Proveedor(models.Model):
         validators=[MinValueValidator(1)],
         verbose_name="Términos de Pago (días)"
     )
-    tipo_materia_prima = models.CharField(
-        max_length=100, 
-        blank=True, 
-        null=True, 
-        verbose_name="Tipo de Materia Prima"
-    )
+
     activo = models.BooleanField(default=True, verbose_name="Activo")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha Creación")
     observaciones = models.TextField(blank=True, verbose_name="Observaciones")

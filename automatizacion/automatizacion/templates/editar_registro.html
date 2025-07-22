@@ -9,56 +9,180 @@
     <title>Editar Registro - {{ registro.id }}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
+<style>
         .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
         }
         .section-header {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #34495e 0%, #2980b9 100%);
             color: white;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
+            padding: 12px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .btn-action {
             margin: 2px;
         }
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            border: none;
+            box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.4);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            border: none;
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2471a3 0%, #2980b9 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #d68910 0%, #f39c12 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 2px 4px rgba(243, 156, 18, 0.3);
+        }
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #ca6f1e 0%, #d68910 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #5d6d7e 0%, #85929e 100%);
+            border: none;
+            box-shadow: 0 2px 4px rgba(93, 109, 126, 0.3);
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #566573 0%, #5d6d7e 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(93, 109, 126, 0.4);
+        }
         .obligacion-row, .pago-row {
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            background-color: #f8f9fa;
+            border: 1px solid #d5dbdb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #fafafa 0%, #f8f9fa 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        .obligacion-row:hover, .pago-row:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
         }
         .remove-btn {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 8px;
+            right: 8px;
+            background: #e74c3c;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+            transition: all 0.2s ease;
+        }
+        .remove-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
         }
         .floating-totals {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            min-width: 250px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            min-width: 280px;
             z-index: 1000;
+            border: 1px solid #e8eaed;
+        }
+        .floating-totals h6 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .floating-totals .small div {
+            padding: 5px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .floating-totals .small div:last-child {
+            border-bottom: none;
+        }
+        .floating-totals .border-top {
+            border-color: #bdc3c7 !important;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .card-body {
+            padding: 2rem;
+        }
+        .form-control {
+            border: 1px solid #d5dbdb;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+        }
+        .form-select {
+            border: 1px solid #d5dbdb;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .form-select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+        }
+        .form-label {
+            color: #2c3e50;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .alert {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         @media (max-width: 768px) {
             .floating-totals {
                 position: static;
                 margin-bottom: 20px;
+                border-radius: 8px;
+            }
+            .obligacion-row, .pago-row {
+                padding: 15px;
             }
         }
-    </style>
+</style>
 </head>
 <body>
     <div class="container-fluid mt-4">
         <!-- Panel flotante de totales -->
-        <div class="floating-totals d-none d-lg-block">
+        {% comment %} <div class="floating-totals d-none d-lg-block">
             <h6><i class="fas fa-calculator"></i> Totales</h6>
             <div class="small">
                 <div><strong>Valor Cliente:</strong> $<span id="valor-cliente-display">{{ registro.valor_cobrar_cliente|floatformat:2 }}</span></div>
@@ -69,7 +193,7 @@
                     <div><strong>Margen Bruto:</strong> $<span id="margen-bruto">0.00</span></div>
                 </div>
             </div>
-        </div>
+        </div> {% endcomment %}
 
         <div class="row">
             <div class="col-12">
